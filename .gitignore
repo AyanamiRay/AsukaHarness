@@ -10,3 +10,4 @@ Thumbs.db
 .npm-cache/
 .electron-cache/
 .smoke/
+.asuka/

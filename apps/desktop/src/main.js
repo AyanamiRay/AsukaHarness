@@ -24,18 +24,18 @@ const SMOKE = process.argv.includes('--smoke');
 /** `--dev` opens detached DevTools on the main window. */
 const DEV = process.argv.includes('--dev');
 
-app.setName('Asuka Shell');
+app.setName('Asuka Harness');
 // Keep user data in a predictable, lowercase directory on every platform.
-// `ASUKA_SHELL_USER_DATA` enables portable installs and isolated test runs.
+// `ASUKA_HARNESS_USER_DATA` enables portable installs and isolated test runs.
 app.setPath(
   'userData',
-  process.env.ASUKA_SHELL_USER_DATA
-    ? resolve(process.env.ASUKA_SHELL_USER_DATA)
-    : join(app.getPath('appData'), 'asuka-shell'),
+  process.env.ASUKA_HARNESS_USER_DATA
+    ? resolve(process.env.ASUKA_HARNESS_USER_DATA)
+    : join(app.getPath('appData'), 'asuka-harness'),
 );
 if (process.platform === 'linux') {
   // Matches StartupWMClass in the generated .desktop file.
-  app.setDesktopName?.('asuka-shell.desktop');
+  app.setDesktopName?.('asuka-harness.desktop');
 }
 
 /** @type {SettingsStore} */
@@ -120,7 +120,7 @@ if (!primaryInstance) {
 async function boot() {
   const userData = app.getPath('userData');
   logger = createLogger(join(userData, 'logs', 'shell.log'));
-  logger.info(`starting Asuka Shell ${app.getVersion()} on ${process.platform}-${process.arch}`);
+  logger.info(`starting Asuka Harness ${app.getVersion()} on ${process.platform}-${process.arch}`);
 
   settings = new SettingsStore(join(userData, 'settings.json'), logger);
   settings.load();
@@ -382,7 +382,7 @@ async function promptMissingDsh(tried) {
     title: '找不到 dsh',
     message: '未找到 DeepSeek Harness CLI',
     detail: [
-      'Asuka Shell 只提供一个桌面外壳，需要本机已安装官方 CLI：',
+      'Asuka Harness 只提供一个桌面外壳，需要本机已安装官方 CLI：',
       '',
       '    npm i -g @deepseek-ai/dsh',
       '',
@@ -628,7 +628,7 @@ function buildMenu() {
           {
             label: app.name,
             submenu: [
-              { role: 'about', label: '关于 Asuka Shell' },
+              { role: 'about', label: '关于 Asuka Harness' },
               { type: 'separator' },
               { role: 'hide', label: '隐藏' },
               { role: 'hideOthers', label: '隐藏其他' },
@@ -719,8 +719,8 @@ function buildMenu() {
     {
       label: '帮助',
       submenu: [
-        { label: '关于 Asuka Shell', click: showAbout },
-        { label: 'Asuka Shell 仓库', click: () => shell.openExternal('https://github.com/AyanamiRay/AsukaShell') },
+        { label: '关于 Asuka Harness', click: showAbout },
+        { label: 'Asuka Harness 仓库', click: () => shell.openExternal('https://github.com/AyanamiRay/AsukaHarness') },
         { label: 'DeepSeek Harness 仓库', click: () => shell.openExternal(DSH_REPO) },
       ],
     },
@@ -760,8 +760,8 @@ function openPicker() {
 function showAbout() {
   const options = {
     type: 'info',
-    title: '关于 Asuka Shell',
-    message: `Asuka Shell ${app.getVersion()}`,
+    title: '关于 Asuka Harness',
+    message: `Asuka Harness ${app.getVersion()}`,
     detail: [
       'DeepSeek Harness 的可换肤桌面外壳。',
       '',
@@ -840,6 +840,6 @@ async function openLogs() {
 
 function fatal(error) {
   logger?.error?.(`fatal: ${error.stack ?? error.message}`);
-  dialog.showErrorBox('Asuka Shell 无法启动', String(error.stack ?? error.message));
+  dialog.showErrorBox('Asuka Harness 无法启动', String(error.stack ?? error.message));
   app.exit(1);
 }

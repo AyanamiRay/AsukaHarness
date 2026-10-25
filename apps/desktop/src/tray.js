@@ -14,7 +14,7 @@ export function createTray({ iconPath, onToggle, onSkins, onRestart, onLogs, onQ
   if (process.platform !== 'darwin') image = image.resize({ width: 22, height: 22 });
 
   const tray = new Tray(image);
-  tray.setToolTip('Asuka Shell');
+  tray.setToolTip('Asuka Harness');
 
   const rebuild = () => {
     tray.setContextMenu(

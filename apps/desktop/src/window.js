@@ -11,7 +11,7 @@ import { BrowserWindow, screen, shell } from 'electron';
 export function stripElectronUA(userAgent) {
   return String(userAgent)
     .replace(/\sElectron\/[\d.]+/gi, '')
-    .replace(/\sasuka-shell\/[\d.]+/gi, '')
+    .replace(/\sasuka-harness\/[\d.]+/gi, '')
     .replace(/\s{2,}/g, ' ')
     .trim();
 }
@@ -43,7 +43,7 @@ export function createMainWindow({ settings, splashPath, preload, logger }) {
     minWidth: 900,
     minHeight: 600,
     show: false,
-    title: 'Asuka Shell',
+    title: 'Asuka Harness',
     backgroundColor: '#0b0d12',
     autoHideMenuBar: false,
     webPreferences: {

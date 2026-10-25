@@ -45,12 +45,13 @@ jobs:
           node-version: 22
       - run: npm ci
       - run: npx electron-builder ${{ matrix.target }} --publish never
+        working-directory: apps/desktop
       - uses: actions/upload-artifact@v4
         with:
-          name: asuka-shell-${{ matrix.artifact }}
+          name: asuka-harness-${{ matrix.artifact }}
           path: |
-            dist/*.AppImage
-            dist/*.deb
-            dist/*.dmg
-            dist/*.exe
+            apps/desktop/dist/*.AppImage
+            apps/desktop/dist/*.deb
+            apps/desktop/dist/*.dmg
+            apps/desktop/dist/*.exe
           if-no-files-found: warn
