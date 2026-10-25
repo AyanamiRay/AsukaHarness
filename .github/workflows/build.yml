@@ -1,0 +1,56 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+env:
+  CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm test
+
+  package:
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: --linux
+            artifact: linux
+          - os: windows-latest
+            target: --win
+            artifact: windows
+          - os: macos-latest
+            target: --mac
+            artifact: macos
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npx electron-builder ${{ matrix.target }} --publish never
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dsh-shell-${{ matrix.artifact }}
+          path: |
+            dist/*.AppImage
+            dist/*.deb
+            dist/*.dmg
+            dist/*.exe
+          if-no-files-found: warn

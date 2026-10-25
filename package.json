@@ -1,0 +1,40 @@
+{
+  "name": "dsh-shell",
+  "version": "0.1.0",
+  "description": "Skinnable cross-platform desktop shell for the DeepSeek Harness web UI",
+  "license": "MIT",
+  "private": true,
+  "author": {
+    "name": "DSH Shell contributors",
+    "email": "dsh-shell@users.noreply.github.com"
+  },
+  "type": "module",
+  "main": "src/main.js",
+  "engines": {
+    "node": ">=22"
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "electron",
+    "desktop",
+    "skin",
+    "wallpaper"
+  ],
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "smoke": "electron . --smoke",
+    "test": "node --test --test-isolation=none \"test/*.test.js\"",
+    "check": "node --check src/main.js && node --check src/backend.js && node --check src/skin-manager.js",
+    "assets": "python3 scripts/generate-assets.py",
+    "dist": "electron-builder",
+    "dist:linux": "electron-builder --linux",
+    "dist:win": "electron-builder --win",
+    "dist:mac": "electron-builder --mac"
+  },
+  "devDependencies": {
+    "electron": "^44.0.0",
+    "electron-builder": "^26.17.0"
+  }
+}

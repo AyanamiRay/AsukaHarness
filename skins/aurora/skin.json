@@ -1,0 +1,11 @@
+{
+  "name": "极光",
+  "description": "深蓝到青绿的极光渐变，适合夜间长时间使用",
+  "image": "background.jpg",
+  "size": "cover",
+  "position": "center",
+  "blur": 0,
+  "dim": 0.28,
+  "tint": "#05070f",
+  "transparentRoot": true
+}

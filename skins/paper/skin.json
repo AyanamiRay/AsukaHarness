@@ -1,0 +1,11 @@
+{
+  "name": "纸感",
+  "description": "暖白纸张纹理，浅色壁纸搭配深色界面",
+  "image": "background.jpg",
+  "size": "cover",
+  "position": "center",
+  "blur": 0,
+  "dim": 0.1,
+  "tint": "#f6efe3",
+  "transparentRoot": true
+}

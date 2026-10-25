@@ -1,0 +1,11 @@
+{
+  "name": "雾林",
+  "description": "低饱和的墨绿与雾带，安静而克制",
+  "image": "background.jpg",
+  "size": "cover",
+  "position": "center",
+  "blur": 0,
+  "dim": 0.34,
+  "tint": "#04120c",
+  "transparentRoot": true
+}

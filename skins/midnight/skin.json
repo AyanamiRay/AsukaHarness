@@ -1,0 +1,11 @@
+{
+  "name": "午夜星空",
+  "description": "近乎黑色的底图与细碎星点，最不打扰阅读",
+  "image": "background.jpg",
+  "size": "cover",
+  "position": "center",
+  "blur": 0,
+  "dim": 0.38,
+  "tint": "#000000",
+  "transparentRoot": true
+}

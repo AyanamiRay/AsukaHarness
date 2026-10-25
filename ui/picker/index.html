@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'" />
+    <title>皮肤</title>
+    <link rel="stylesheet" href="./picker.css" />
+  </head>
+  <body>
+    <header>
+      <div class="titles">
+        <h1 id="title">皮肤</h1>
+        <p id="subtitle">选择一张壁纸，立即生效，不需要重新加载页面</p>
+      </div>
+      <div class="actions">
+        <button id="import" class="primary" type="button">导入图片…</button>
+        <button id="folder" type="button">打开皮肤目录</button>
+        <button id="reload" type="button">刷新</button>
+      </div>
+    </header>
+
+    <section class="options">
+      <label class="switch">
+        <input id="enabled" type="checkbox" />
+        <span class="track"><span class="thumb"></span></span>
+        <span class="label" id="enabledLabel">启用壁纸</span>
+      </label>
+      <label class="switch">
+        <input id="transparent" type="checkbox" />
+        <span class="track"><span class="thumb"></span></span>
+        <span class="label" id="transparentLabel">壁纸透出应用背景</span>
+      </label>
+      <span class="hint" id="hint"></span>
+    </section>
+
+    <main id="grid" aria-live="polite"></main>
+    <footer id="footer"></footer>
+    <div id="toast" role="status"></div>
+
+    <script src="./picker.js" type="module"></script>
+  </body>
+</html>

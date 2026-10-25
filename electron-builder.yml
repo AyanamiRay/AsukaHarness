@@ -1,0 +1,55 @@
+appId: com.dshshell.app
+productName: DSH Shell
+copyright: Copyright © 2026 DSH Shell contributors
+
+directories:
+  output: dist
+
+# Keep artifact names free of spaces ("DSH Shell-0.1.0.AppImage" is awkward in
+# shells and URLs) and match the .desktop StartupWMClass.
+artifactName: ${name}-${version}-${arch}.${ext}
+executableName: dsh-shell
+
+files:
+  - src/**/*
+  - ui/**/*
+  - skins/**/*
+  - assets/**/*
+  - package.json
+
+# Wallpapers and icons are read with plain fs / nativeImage, so ship a real
+# directory instead of an asar archive.
+asar: false
+
+linux:
+  target:
+    - AppImage
+    - deb
+  category: Development
+  icon: assets/icon.png
+  synopsis: Skinnable desktop shell for DeepSeek Harness
+  desktop:
+    entry:
+      Name: DSH Shell
+      Comment: DeepSeek Harness desktop shell
+      Categories: Development;Utility;
+      StartupWMClass: dsh-shell
+      MimeType: x-scheme-handler/dsh
+
+win:
+  target:
+    - nsis
+  icon: assets/icon.png
+
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+
+mac:
+  target:
+    - dmg
+  icon: assets/icon.png
+  category: public.app-category.developer-tools
+
+publish: null
