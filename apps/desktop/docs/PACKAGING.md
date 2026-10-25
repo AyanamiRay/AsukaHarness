@@ -109,7 +109,7 @@ npx electron-builder --linux deb --arm64
 
 ## 4. 没有 Linux：用 GitHub Actions（推荐）
 
-仓库自带 [.github/workflows/build.yml](../.github/workflows/build.yml)：
+仓库自带 [.github/workflows/build.yml](../../.github/workflows/build.yml)：
 
 - `push` / `PR`：只跑单元测试
 - `v*` tag **或手动触发**：三平台打包并上传 artifact
