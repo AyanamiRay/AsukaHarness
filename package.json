@@ -1,12 +1,12 @@
 {
-  "name": "dsh-shell",
+  "name": "asuka-shell",
   "version": "0.1.0",
   "description": "Skinnable cross-platform desktop shell for the DeepSeek Harness web UI",
   "license": "MIT",
   "private": true,
   "author": {
-    "name": "DSH Shell contributors",
-    "email": "dsh-shell@users.noreply.github.com"
+    "name": "Asuka Shell contributors",
+    "email": "asuka-shell@users.noreply.github.com"
   },
   "type": "module",
   "main": "src/main.js",

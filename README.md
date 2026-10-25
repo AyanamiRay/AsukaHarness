@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="assets/icon.png" width="96" alt="DSH Shell" />
+  <img src="assets/icon.png" width="96" alt="Asuka Shell" />
 </p>
 
-<h1 align="center">DSH Shell</h1>
+<h1 align="center">Asuka Shell</h1>
 
 <p align="center">
   DeepSeek Harness 的可换肤桌面外壳：把一个真正的 <code>dsh web</code> 装进窗口里，壁纸随便换，功能一个不少。
@@ -14,7 +14,11 @@
   <img alt="platform" src="https://img.shields.io/badge/platform-linux%20%7C%20macOS%20%7C%20Windows-lightgrey.svg" />
 </p>
 
-> **English**: DSH Shell is a skinnable Electron shell around the official
+<p align="center">
+  <a href="https://github.com/AyanamiRay/AsukaShell">github.com/AyanamiRay/AsukaShell</a>
+</p>
+
+> **English**: Asuka Shell is a skinnable Electron shell around the official
 > DeepSeek Harness web UI. It launches `dsh web` on loopback, loads the printed
 > URL, and adds a wallpaper layer plus tray/shortcuts. No fork of DSH, no
 > reimplementation: models, tools, sessions and plugins are the real web app.
@@ -24,7 +28,7 @@
 ## 为什么是"壳"而不是"移植"
 
 官方桌面端只发布 Windows 和 macOS 构建，Linux 上没有原生的 Electron 包。
-DSH Shell 不去改 DSH 的代码，而是：
+Asuka Shell 不去改 DSH 的代码，而是：
 
 - 启动官方 CLI：`dsh web --no-open --host 127.0.0.1 --port <free>`
 - 从 stdout 里抓 `dsh web: http://…?token=…` 这一行（一次性 token）
@@ -35,13 +39,14 @@ DSH 升级时只要 `dsh web` 的启动方式不变，壳不用跟着改。
 
 ## 特性
 
+- **页面内直接换壁纸**：右下角悬浮按钮，点一下选图、或把图片拖上去，立即生效，不用整理文件夹
 - **任意背景皮肤**：内置 4 套，也可以导入自己的图片；切换即时生效，不刷新页面
 - **壁纸层与应用背景分离**：可调暗化、模糊、平铺/裁切，可选"让壁纸透出应用背景"
 - **托盘常驻**：显示/隐藏、换肤、重启后端、打开日志
 - **全局快捷键**：默认 `Ctrl/Cmd + Shift + Space` 唤起/隐藏（可改）
 - **单实例 + `dsh://` 深链**：可选注册协议，点击通知回到窗口
 - **崩溃自愈**：后端异常退出按指数退避重启，日志落盘
-- **干净的安全边界**：页面无 Node 集成、无 preload 桥、上下文隔离；外链走系统浏览器
+- **干净的安全边界**：页面无 Node 集成、preload 不暴露 API、上下文隔离；外链走系统浏览器
 
 ## 环境要求
 
@@ -69,8 +74,8 @@ dsh web --no-open --port 3080    # 能打印 dsh web: http://127.0.0.1:3080/?tok
 ### 从源码运行
 
 ```bash
-git clone <this-repo> dsh-shell
-cd dsh-shell
+git clone <this-repo> asuka-shell
+cd asuka-shell
 npm install
 npm start          # 开发运行
 npm run dev        # 打开 DevTools
@@ -90,7 +95,7 @@ npm run dev        # 打开 DevTools
 ### 打包
 
 ```bash
-npm run dist:linux    # → dist/dsh-shell-0.1.0-amd64.deb + .AppImage
+npm run dist:linux    # → dist/asuka-shell-0.1.0-amd64.deb + .AppImage
 npm run dist:win      # → NSIS 安装器
 npm run dist:mac      # → dmg
 ```
@@ -109,6 +114,17 @@ npm run dist:mac      # → dmg
 | `forest` | 雾林 | 低饱和墨绿 + 雾带 |
 
 用托盘菜单、`Ctrl/Cmd + Shift + K` 或菜单「皮肤」切换；也可以点「导入图片…」直接选一张本地图片。
+
+### 在页面里直接换壁纸
+
+页面右下角有一个悬浮按钮，**不用把图片放进任何文件夹**：
+
+- **单击**：选择本地图片，立即设为壁纸（自动复制到用户皮肤目录）
+- **把图片拖到按钮上**：同样立即生效
+- **右键**：打开皮肤管理窗口（网格预览、切换内置皮肤、调整暗化/透出）
+- **拖动**：把按钮挪到任意位置，位置会记住，避免挡住发送键
+
+不想要它：菜单「皮肤 → 页面悬浮按钮」关掉即可。
 
 ### 自己做一个皮肤
 
@@ -140,9 +156,9 @@ skins/my-skin/
 
 | 平台 | 目录 |
 |---|---|
-| Linux | `~/.config/dsh-shell/skins/` |
-| Windows | `%APPDATA%\dsh-shell\skins\` |
-| macOS | `~/Library/Application Support/dsh-shell/skins/` |
+| Linux | `~/.config/asuka-shell/skins/` |
+| Windows | `%APPDATA%\asuka-shell\skins\` |
+| macOS | `~/Library/Application Support/asuka-shell/skins/` |
 
 > 图片最大 20 MB；支持 jpg / png / webp / avif。壁纸会以 data URL 注入，所以切换不需要重启。
 
@@ -161,6 +177,7 @@ skins/my-skin/
 | `skin` | `"aurora"` | 当前皮肤 id |
 | `skinEnabled` | `true` | 壁纸总开关 |
 | `transparentRoot` | `true` | 透出应用外层背景 |
+| `floatingButton` | `true` | 页面右下角的悬浮换壁纸按钮 |
 | `closeToTray` | `true` | 关窗时最小化到托盘 |
 | `globalShortcut` | `"CommandOrControl+Shift+Space"` | 全局唤起；空串禁用 |
 | `spoofBrowserUA` | `true` | 从 UA 中去掉 `Electron/x` |
@@ -192,6 +209,9 @@ DSH 的应用外壳有不透明背景。到「皮肤」里打开「壁纸透出�
 
 **切了皮肤没反应？**
 `did-finish-load` 之后才会注入。页面还在启动时先等它加载完；也可以按 `Ctrl/Cmd + R` 重载。
+
+**右下角按钮挡住内容或不见了？**
+按钮可以拖动到任意位置（位置会记住）；不想要就关掉菜单「皮肤 → 页面悬浮按钮」。如果整页刷新后按钮消失，等页面加载完会自动回来。
 
 **提示找不到 dsh？**
 装 CLI：`npm i -g @deepseek-ai/dsh`；或在 `settings.json` 里写 `"dshCommand": "/home/you/.local/bin/dsh"`。
@@ -233,7 +253,7 @@ npm start                                           # 终端 B
 
 打包自检（不弹窗场景可用）：`npm run smoke` 会在页面加载后把皮肤状态写进日志并退出。
 
-用户目录可以用环境变量 `DSH_SHELL_USER_DATA` 重定向，方便便携安装或隔离测试。
+用户目录可以用环境变量 `ASUKA_SHELL_USER_DATA` 重定向，方便便携安装或隔离测试。
 
 目录结构：
 
@@ -242,6 +262,8 @@ src/
 ├── main.js            # 应用装配：窗口、托盘、菜单、IPC、生命周期
 ├── backend.js         # dsh web 子进程：启动、解析 URL、退出、重启
 ├── window.js          # BrowserWindow 策略：UA、外链、缩放、可见区域
+├── inpage.js          # 注入页面的悬浮按钮（纯样式/结构）
+├── preload-main.cjs   # 悬浮按钮的行为（不向页面暴露 API）
 ├── tray.js            # 托盘
 ├── skin-manager.js    # 皮肤发现、缩略图、CSS 注入
 ├── preload-picker.cjs # 皮肤选择器的受限桥
@@ -260,7 +282,8 @@ python3 scripts/generate-assets.py   # 需要 Pillow + NumPy
 
 ## 安全说明
 
-- 页面运行在 `contextIsolation: true`、`nodeIntegration: false`、`sandbox: true` 下，没有 preload 桥
+- 页面运行在 `contextIsolation: true`、`nodeIntegration: false`、`sandbox: true` 下
+- 主窗口的 preload **不向页面暴露任何 API**：它只给注入的悬浮按钮绑定点击/拖拽，再通过 IPC 请求主进程打开文件对话框或导入图片
 - 只允许同源导航，其余链接交给系统浏览器
 - 权限请求按白名单放行（通知、麦克风、剪贴板读取、全屏）
 - 一次性 launch token 只存在于窗口 URL 中，不写入磁盘

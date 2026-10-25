@@ -1,14 +1,14 @@
-appId: com.dshshell.app
-productName: DSH Shell
-copyright: Copyright © 2026 DSH Shell contributors
+appId: com.ayanamiray.asukashell
+productName: Asuka Shell
+copyright: Copyright © 2026 Asuka Shell contributors
 
 directories:
   output: dist
 
-# Keep artifact names free of spaces ("DSH Shell-0.1.0.AppImage" is awkward in
+# Keep artifact names free of spaces ("Asuka Shell-0.1.0.AppImage" is awkward in
 # shells and URLs) and match the .desktop StartupWMClass.
 artifactName: ${name}-${version}-${arch}.${ext}
-executableName: dsh-shell
+executableName: asuka-shell
 
 files:
   - src/**/*
@@ -30,10 +30,10 @@ linux:
   synopsis: Skinnable desktop shell for DeepSeek Harness
   desktop:
     entry:
-      Name: DSH Shell
+      Name: Asuka Shell
       Comment: DeepSeek Harness desktop shell
       Categories: Development;Utility;
-      StartupWMClass: dsh-shell
+      StartupWMClass: asuka-shell
       MimeType: x-scheme-handler/dsh
 
 win:

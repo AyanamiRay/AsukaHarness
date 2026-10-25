@@ -4,6 +4,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { DshBackend } from './backend.js';
+import { injectFloatingButton, removeFloatingButton } from './inpage.js';
 import { locateDsh } from './lib/dsh-locator.js';
 import { createLogger } from './lib/log.js';
 import { SettingsStore } from './lib/settings-store.js';
@@ -15,6 +16,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const SPLASH = join(ROOT, 'ui', 'splash.html');
 const PICKER = join(ROOT, 'ui', 'picker', 'index.html');
 const PICKER_PRELOAD = join(ROOT, 'src', 'preload-picker.cjs');
+const MAIN_PRELOAD = join(ROOT, 'src', 'preload-main.cjs');
 const TRAY_ICON = join(ROOT, 'assets', 'tray.png');
 const DSH_REPO = 'https://github.com/deepseek-ai/deepseek-harness';
 /** `--smoke`: log the applied skin state after load, then exit (CI diagnostic). */
@@ -22,18 +24,18 @@ const SMOKE = process.argv.includes('--smoke');
 /** `--dev` opens detached DevTools on the main window. */
 const DEV = process.argv.includes('--dev');
 
-app.setName('DSH Shell');
+app.setName('Asuka Shell');
 // Keep user data in a predictable, lowercase directory on every platform.
-// `DSH_SHELL_USER_DATA` enables portable installs and isolated test runs.
+// `ASUKA_SHELL_USER_DATA` enables portable installs and isolated test runs.
 app.setPath(
   'userData',
-  process.env.DSH_SHELL_USER_DATA
-    ? resolve(process.env.DSH_SHELL_USER_DATA)
-    : join(app.getPath('appData'), 'dsh-shell'),
+  process.env.ASUKA_SHELL_USER_DATA
+    ? resolve(process.env.ASUKA_SHELL_USER_DATA)
+    : join(app.getPath('appData'), 'asuka-shell'),
 );
 if (process.platform === 'linux') {
   // Matches StartupWMClass in the generated .desktop file.
-  app.setDesktopName?.('dsh-shell.desktop');
+  app.setDesktopName?.('asuka-shell.desktop');
 }
 
 /** @type {SettingsStore} */
@@ -118,7 +120,7 @@ if (!primaryInstance) {
 async function boot() {
   const userData = app.getPath('userData');
   logger = createLogger(join(userData, 'logs', 'shell.log'));
-  logger.info(`starting DSH Shell ${app.getVersion()} on ${process.platform}-${process.arch}`);
+  logger.info(`starting Asuka Shell ${app.getVersion()} on ${process.platform}-${process.arch}`);
 
   settings = new SettingsStore(join(userData, 'settings.json'), logger);
   settings.load();
@@ -164,7 +166,12 @@ function configureSession() {
 }
 
 function createWindow() {
-  mainWindow = createMainWindow({ settings: settings.get(), splashPath: SPLASH, logger });
+  mainWindow = createMainWindow({
+    settings: settings.get(),
+    splashPath: SPLASH,
+    preload: MAIN_PRELOAD,
+    logger,
+  });
   wireWindow(mainWindow);
 }
 
@@ -181,7 +188,9 @@ function wireWindow(window) {
     logger.info(`window: loaded ${url.replace(/([?&]token=)[^&]+/u, '$1***')}`);
     applyZoom(window, settings.get().zoomFactor);
     const applied = skins?.apply(contents) ?? Promise.resolve();
-    applied.catch((error) => logger.warn(`skin: ${error.message}`));
+    applied
+      .then(() => syncFloatingButton())
+      .catch((error) => logger.warn(`skin: ${error.message}`));
     if (SMOKE) {
       applied
         .then(() =>
@@ -373,7 +382,7 @@ async function promptMissingDsh(tried) {
     title: '找不到 dsh',
     message: '未找到 DeepSeek Harness CLI',
     detail: [
-      'DSH Shell 只提供一个桌面外壳，需要本机已安装官方 CLI：',
+      'Asuka Shell 只提供一个桌面外壳，需要本机已安装官方 CLI：',
       '',
       '    npm i -g @deepseek-ai/dsh',
       '',
@@ -463,6 +472,8 @@ async function restartBackend() {
 function registerIpc() {
   const fromPicker = (event) =>
     Boolean(pickerWindow && !pickerWindow.isDestroyed() && event.sender === pickerWindow.webContents);
+  const fromMain = (event) =>
+    Boolean(mainWindow && !mainWindow.isDestroyed() && event.sender === mainWindow.webContents);
 
   ipcMain.handle('skins:list', (event) => {
     if (!fromPicker(event)) throw new Error('rejected sender');
@@ -522,6 +533,59 @@ function registerIpc() {
     if (!fromPicker(event)) throw new Error('rejected sender');
     return app.getLocale();
   });
+
+  // Requests from the in-page wallpaper button (preload-main.cjs).
+  ipcMain.handle('shell:pick-image', async (event) => {
+    if (!fromMain(event)) throw new Error('rejected sender');
+    return pickImageFromDialog();
+  });
+
+  ipcMain.handle('shell:import-image', async (event, filePath) => {
+    if (!fromMain(event) || typeof filePath !== 'string' || filePath.length > 4096) {
+      throw new Error('rejected sender');
+    }
+    return importImagePath(filePath);
+  });
+
+  ipcMain.handle('shell:open-picker', (event) => {
+    if (!fromMain(event)) throw new Error('rejected sender');
+    openPicker();
+    return { ok: true };
+  });
+}
+
+/** Native file dialog used by the floating button. */
+async function pickImageFromDialog() {
+  if (!mainWindow || mainWindow.isDestroyed()) return { ok: false, canceled: true };
+  const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, {
+    title: '选择壁纸图片',
+    properties: ['openFile'],
+    filters: [{ name: '图片', extensions: ['jpg', 'jpeg', 'png', 'webp', 'avif'] }],
+  });
+  if (canceled || !filePaths[0]) return { ok: false, canceled: true };
+  return importImagePath(filePaths[0]);
+}
+
+/** Copy an image into the user skin directory and apply it. Never throws. */
+async function importImagePath(filePath) {
+  try {
+    const id = skins.importImage(filePath);
+    await setSkin(id);
+    return { ok: true, id };
+  } catch (error) {
+    logger.warn(`skin: import failed: ${error.message}`);
+    return { ok: false, error: error.message };
+  }
+}
+
+async function syncFloatingButton() {
+  if (!mainWindow || mainWindow.isDestroyed()) return;
+  try {
+    if (settings.get().floatingButton) await injectFloatingButton(mainWindow.webContents);
+    else await removeFloatingButton(mainWindow.webContents);
+  } catch (error) {
+    logger.warn(`page: floating button failed: ${error.message}`);
+  }
 }
 
 async function applySkin() {
@@ -564,7 +628,7 @@ function buildMenu() {
           {
             label: app.name,
             submenu: [
-              { role: 'about', label: '关于 DSH Shell' },
+              { role: 'about', label: '关于 Asuka Shell' },
               { type: 'separator' },
               { role: 'hide', label: '隐藏' },
               { role: 'hideOthers', label: '隐藏其他' },
@@ -632,6 +696,15 @@ function buildMenu() {
           checked: settings.get().transparentRoot,
           click: (item) => setTransparentRoot(item.checked).catch((error) => logger.warn(`skin: ${error.message}`)),
         },
+        {
+          label: '页面悬浮按钮',
+          type: 'checkbox',
+          checked: settings.get().floatingButton,
+          click: (item) => {
+            settings.patch({ floatingButton: item.checked });
+            syncFloatingButton();
+          },
+        },
         { type: 'separator' },
         ...list.map((skin) => ({
           label: skin.name,
@@ -646,7 +719,8 @@ function buildMenu() {
     {
       label: '帮助',
       submenu: [
-        { label: '关于 DSH Shell', click: showAbout },
+        { label: '关于 Asuka Shell', click: showAbout },
+        { label: 'Asuka Shell 仓库', click: () => shell.openExternal('https://github.com/AyanamiRay/AsukaShell') },
         { label: 'DeepSeek Harness 仓库', click: () => shell.openExternal(DSH_REPO) },
       ],
     },
@@ -686,8 +760,8 @@ function openPicker() {
 function showAbout() {
   const options = {
     type: 'info',
-    title: '关于 DSH Shell',
-    message: `DSH Shell ${app.getVersion()}`,
+    title: '关于 Asuka Shell',
+    message: `Asuka Shell ${app.getVersion()}`,
     detail: [
       'DeepSeek Harness 的可换肤桌面外壳。',
       '',
@@ -766,6 +840,6 @@ async function openLogs() {
 
 function fatal(error) {
   logger?.error?.(`fatal: ${error.stack ?? error.message}`);
-  dialog.showErrorBox('DSH Shell 无法启动', String(error.stack ?? error.message));
+  dialog.showErrorBox('Asuka Shell 无法启动', String(error.stack ?? error.message));
   app.exit(1);
 }

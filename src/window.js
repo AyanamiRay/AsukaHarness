@@ -3,15 +3,15 @@ import { BrowserWindow, screen, shell } from 'electron';
 /**
  * Windows and window-adjacent plumbing.
  *
- * The page is untrusted-by-default: no Node integration, no preload bridge,
- * context isolation on, and every navigation away from the DSH origin is
+ * The page is untrusted-by-default: no Node integration, no page-facing preload
+ * API, context isolation on, and every navigation away from the DSH origin is
  * handed to the system browser.
  */
 
 export function stripElectronUA(userAgent) {
   return String(userAgent)
     .replace(/\sElectron\/[\d.]+/gi, '')
-    .replace(/\sdsh-shell\/[\d.]+/gi, '')
+    .replace(/\sasuka-shell\/[\d.]+/gi, '')
     .replace(/\s{2,}/g, ' ')
     .trim();
 }
@@ -36,17 +36,18 @@ export function visibleWindowBounds(saved) {
   return visible ? { width, height, x, y } : { width, height };
 }
 
-export function createMainWindow({ settings, splashPath, logger }) {
+export function createMainWindow({ settings, splashPath, preload, logger }) {
   const bounds = visibleWindowBounds(settings.window);
   const window = new BrowserWindow({
     ...bounds,
     minWidth: 900,
     minHeight: 600,
     show: false,
-    title: 'DeepSeek Harness',
+    title: 'Asuka Shell',
     backgroundColor: '#0b0d12',
     autoHideMenuBar: false,
     webPreferences: {
+      preload,
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,

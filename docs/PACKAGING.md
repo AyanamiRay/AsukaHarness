@@ -2,7 +2,7 @@
 
 这份文档只讲"怎么把源码变成可安装包"，以及构建失败时怎么排查。运行方式见 [README](../README.md)。
 
-> **一句话结论**：没有 Linux 机器也能出 deb —— 用仓库自带的 GitHub Actions，手动跑一次工作流即可下载 `dsh-shell-*-amd64.deb`。
+> **一句话结论**：没有 Linux 机器也能出 deb —— 用仓库自带的 GitHub Actions，手动跑一次工作流即可下载 `asuka-shell-*-amd64.deb`。
 
 ---
 
@@ -12,37 +12,37 @@
 
 | 文件 | 适用 | 说明 |
 |---|---|---|
-| `dist/dsh-shell-0.1.0-amd64.deb` | Debian / Ubuntu | 系统级安装，进应用菜单 |
-| `dist/dsh-shell-0.1.0-x86_64.AppImage` | 任意发行版 | 单文件，免安装 |
-| `dist/dsh-shell-0.1.0-x86_64.AppImage.zsync` | — | 自动更新用的增量索引（没配 publish 时可能不生成） |
+| `dist/asuka-shell-0.1.0-amd64.deb` | Debian / Ubuntu | 系统级安装，进应用菜单 |
+| `dist/asuka-shell-0.1.0-x86_64.AppImage` | 任意发行版 | 单文件，免安装 |
+| `dist/asuka-shell-0.1.0-x86_64.AppImage.zsync` | — | 自动更新用的增量索引（没配 publish 时可能不生成） |
 
 其他平台：
 
 | 命令 | 产物 |
 |---|---|
-| `npm run dist:win` | `dsh-shell-0.1.0-x64.exe`（NSIS 安装器） |
-| `npm run dist:mac` | `dsh-shell-0.1.0-arm64.dmg` / `x64.dmg` |
+| `npm run dist:win` | `asuka-shell-0.1.0-x64.exe`（NSIS 安装器） |
+| `npm run dist:mac` | `asuka-shell-0.1.0-arm64.dmg` / `x64.dmg` |
 
 > deb 的体系结构字段是 `amd64`，AppImage 的命名用 `x86_64`，两者都是 x64，不要被文件名差异误导。
 
 ### deb 里到底装了什么
 
 ```
-/opt/DSH Shell/                      应用本体（asar: false，皮肤/图标是真实文件）
-/usr/bin/dsh-shell                   启动器（符号链接）
-/usr/share/applications/dsh-shell.desktop
-/usr/share/icons/hicolor/16x16/apps/dsh-shell.png
+/opt/Asuka Shell/                      应用本体（asar: false，皮肤/图标是真实文件）
+/usr/bin/asuka-shell                   启动器（符号链接）
+/usr/share/applications/asuka-shell.desktop
+/usr/share/icons/hicolor/16x16/apps/asuka-shell.png
 ...
-/usr/share/icons/hicolor/512x512/apps/dsh-shell.png
+/usr/share/icons/hicolor/512x512/apps/asuka-shell.png
 ```
 
-用户数据不在包里，运行时写到 `~/.config/dsh-shell/`（皮肤、设置、日志）。卸载包不会删用户数据。
+用户数据不在包里，运行时写到 `~/.config/asuka-shell/`（皮肤、设置、日志）。卸载包不会删用户数据。
 
 检查内容：
 
 ```bash
-dpkg-deb -I dist/dsh-shell-0.1.0-amd64.deb        # 元数据 + Depends
-dpkg-deb -c dist/dsh-shell-0.1.0-amd64.deb | head -40
+dpkg-deb -I dist/asuka-shell-0.1.0-amd64.deb        # 元数据 + Depends
+dpkg-deb -c dist/asuka-shell-0.1.0-amd64.deb | head -40
 ```
 
 ---
@@ -55,15 +55,15 @@ dpkg-deb -c dist/dsh-shell-0.1.0-amd64.deb | head -40
 | 版本号 | `npm version patch`（会改 `package.json` 并打 tag） |
 | `author.email` | **deb 的 Maintainer 字段来自这里**，缺了会直接构建失败 |
 | 图标 | `assets/icon.png` 至少 512×512，当前是 512 |
-| 产品名 | `productName: DSH Shell`；可执行文件名固定为 `dsh-shell` |
+| 产品名 | `productName: Asuka Shell`；可执行文件名固定为 `asuka-shell` |
 | 依赖锁 | 保留 `package-lock.json`，CI 用 `npm ci` |
 
 `package.json` 里已经写好：
 
 ```json
 "author": {
-  "name": "DSH Shell contributors",
-  "email": "dsh-shell@users.noreply.github.com"
+  "name": "Asuka Shell contributors",
+  "email": "asuka-shell@users.noreply.github.com"
 }
 ```
 
@@ -83,7 +83,7 @@ npm run dist:linux
 
 不需要预装 Electron、fpm、dpkg-deb 之外的打包器：electron-builder 会下载对应版本的 Electron 预编译包，deb 由它内置的 `app-builder` 生成。
 
-> **WSL2 注意**：把仓库放在 WSL 的 Linux 文件系统里（例如 `~/dsh-shell`），不要在 `/mnt/c/...` 下构建。跨文件系统会丢符号链接权限，deb 的 `/usr/bin/dsh-shell` 和图标可能出错。
+> **WSL2 注意**：把仓库放在 WSL 的 Linux 文件系统里（例如 `~/asuka-shell`），不要在 `/mnt/c/...` 下构建。跨文件系统会丢符号链接权限，deb 的 `/usr/bin/asuka-shell` 和图标可能出错。
 
 构建耗时：首次约 2–5 分钟（要下 Electron ~100MB），之后 30 秒左右。
 
@@ -124,9 +124,9 @@ git push --follow-tags
 工作流会跑 `test` → `package`，完成后在该次运行页面底部下载：
 
 ```
-dsh-shell-linux.zip    → 里面是 .deb 和 .AppImage
-dsh-shell-windows.zip
-dsh-shell-macos.zip
+asuka-shell-linux.zip    → 里面是 .deb 和 .AppImage
+asuka-shell-windows.zip
+asuka-shell-macos.zip
 ```
 
 ### 方式 B：手动触发（不发版）
@@ -173,17 +173,17 @@ docker run --rm -it -v "$PWD":/project -w /project node:22-bookworm \
 ### deb
 
 ```bash
-sudo apt install ./dsh-shell-0.1.0-amd64.deb
+sudo apt install ./asuka-shell-0.1.0-amd64.deb
 # 或者
-sudo dpkg -i dsh-shell-0.1.0-amd64.deb && sudo apt -f install
+sudo dpkg -i asuka-shell-0.1.0-amd64.deb && sudo apt -f install
 ```
 
 验证：
 
 ```bash
-which dsh-shell
-dsh-shell                     # 或从应用菜单启动
-desktop-file-validate /usr/share/applications/dsh-shell.desktop
+which asuka-shell
+asuka-shell                     # 或从应用菜单启动
+desktop-file-validate /usr/share/applications/asuka-shell.desktop
 # 如果启用了 dsh:// 协议：
 xdg-mime query default x-scheme-handler/dsh
 ```
@@ -191,17 +191,17 @@ xdg-mime query default x-scheme-handler/dsh
 卸载：
 
 ```bash
-sudo apt remove dsh-shell     # 保留 ~/.config/dsh-shell
-sudo apt purge dsh-shell      # 用户数据仍然保留，需要手动删
+sudo apt remove asuka-shell     # 保留 ~/.config/asuka-shell
+sudo apt purge asuka-shell      # 用户数据仍然保留，需要手动删
 ```
 
-> deb 只装"壳"，**不包含 `dsh` CLI**。目标机器仍需要 `npm i -g @deepseek-ai/dsh`，或在 `~/.config/dsh-shell/settings.json` 里填 `dshCommand`。
+> deb 只装"壳"，**不包含 `dsh` CLI**。目标机器仍需要 `npm i -g @deepseek-ai/dsh`，或在 `~/.config/asuka-shell/settings.json` 里填 `dshCommand`。
 
 ### AppImage
 
 ```bash
-chmod +x dist/dsh-shell-0.1.0-x86_64.AppImage
-./dist/dsh-shell-0.1.0-x86_64.AppImage
+chmod +x dist/asuka-shell-0.1.0-x86_64.AppImage
+./dist/asuka-shell-0.1.0-x86_64.AppImage
 ```
 
 常见两个报错：
@@ -212,7 +212,7 @@ chmod +x dist/dsh-shell-0.1.0-x86_64.AppImage
    ```
    或者不进 FUSE，直接解包运行：
    ```bash
-   ./dsh-shell-0.1.0-x86_64.AppImage --appimage-extract-and-run
+   ./asuka-shell-0.1.0-x86_64.AppImage --appimage-extract-and-run
    ```
 
 2. `The SUID sandbox helper binary was found, but is not configured correctly`
@@ -222,10 +222,10 @@ chmod +x dist/dsh-shell-0.1.0-x86_64.AppImage
    ```
    或者在解包目录里修正权限：
    ```bash
-   ./dsh-shell-0.1.0-x86_64.AppImage --appimage-extract
+   ./asuka-shell-0.1.0-x86_64.AppImage --appimage-extract
    sudo chown root:root squashfs-root/chrome-sandbox
    sudo chmod 4755 squashfs-root/chrome-sandbox
-   ./squashfs-root/dsh-shell
+   ./squashfs-root/asuka-shell
    ```
    最后手段才是 `--no-sandbox`（会降低浏览器进程隔离，不建议长期用）。
 
@@ -238,17 +238,17 @@ chmod +x dist/dsh-shell-0.1.0-x86_64.AppImage
 `electron-builder.yml`：
 
 ```yaml
-appId: com.example.dsh-shell          # 改这里
-productName: DSH Shell                # 窗口/菜单显示名
+appId: com.example.asuka-shell          # 改这里
+productName: Asuka Shell                # 窗口/菜单显示名
 artifactName: ${name}-${version}-${arch}.${ext}
-executableName: dsh-shell             # 与 StartupWMClass 保持一致
+executableName: asuka-shell             # 与 StartupWMClass 保持一致
 
 linux:
   category: Development
   icon: assets/icon.png
   desktop:
     entry:
-      StartupWMClass: dsh-shell
+      StartupWMClass: asuka-shell
       MimeType: x-scheme-handler/dsh
 ```
 
@@ -319,19 +319,19 @@ compression: maximum     # 顶层字段；deb/AppImage 会明显变小，构建�
 
 ```bash
 # 1. 包元数据
-dpkg-deb -I dist/dsh-shell-0.1.0-amd64.deb
+dpkg-deb -I dist/asuka-shell-0.1.0-amd64.deb
 
 # 2. 桌面入口合法
-dpkg-deb -x dist/dsh-shell-0.1.0-amd64.deb /tmp/dsh-deb
-desktop-file-validate /tmp/dsh-deb/usr/share/applications/dsh-shell.desktop
+dpkg-deb -x dist/asuka-shell-0.1.0-amd64.deb /tmp/dsh-deb
+desktop-file-validate /tmp/dsh-deb/usr/share/applications/asuka-shell.desktop
 
 # 3. 干净环境装一次（建议用容器/虚拟机）
 docker run --rm -it -v "$PWD/dist:/pkg" ubuntu:24.04 bash
-#   apt update && apt install -y /pkg/dsh-shell-0.1.0-amd64.deb
-#   dsh-shell --version
+#   apt update && apt install -y /pkg/asuka-shell-0.1.0-amd64.deb
+#   asuka-shell --version
 
 # 4. 校验和
 sha256sum dist/*.deb dist/*.AppImage > dist/SHA256SUMS
 ```
 
-最小验收通过的标准：**在没装过 Node 的干净系统上，`dsh-shell` 能启动、能加载 Web UI、能换皮肤**（`dsh` CLI 仍需按 README 安装）。
+最小验收通过的标准：**在没装过 Node 的干净系统上，`asuka-shell` 能启动、能加载 Web UI、能换皮肤**（`dsh` CLI 仍需按 README 安装）。

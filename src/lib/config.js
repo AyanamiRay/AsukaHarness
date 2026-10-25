@@ -32,6 +32,8 @@ export const DEFAULT_SETTINGS = Object.freeze({
   skinEnabled: true,
   /** Also make the app's outer containers transparent so the wallpaper shows. */
   transparentRoot: true,
+  /** Show the draggable wallpaper button inside the DSH page. */
+  floatingButton: true,
   /** Hide to tray instead of quitting when the window closes. */
   closeToTray: true,
   /** Toggle shortcut; empty string disables it. */
@@ -122,6 +124,7 @@ export function normalizeSettings(input = {}) {
     skin: safeSkin,
     skinEnabled: bool(source.skinEnabled, defaults.skinEnabled),
     transparentRoot: bool(source.transparentRoot, defaults.transparentRoot),
+    floatingButton: bool(source.floatingButton, defaults.floatingButton),
     closeToTray: bool(source.closeToTray, defaults.closeToTray),
     globalShortcut: shortcut,
     spoofBrowserUA: bool(source.spoofBrowserUA, defaults.spoofBrowserUA),
