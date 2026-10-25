@@ -25,7 +25,7 @@
     "start": "electron .",
     "dev": "electron . --dev",
     "smoke": "electron . --smoke",
-    "test": "node --test --test-isolation=none \"test/*.test.js\"",
+    "test": "node --test test/config.test.js test/dsh-url.test.js test/locator.test.js test/skins.test.js",
     "check": "node --check src/main.js && node --check src/backend.js && node --check src/skin-manager.js",
     "assets": "python3 scripts/generate-assets.py",
     "dist": "electron-builder",
